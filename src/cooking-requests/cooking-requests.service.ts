@@ -131,6 +131,17 @@ export class CookingRequestsService {
     });
   }
 
+  async findMyJobs(cookerId: string): Promise<CookingRequest[]> {
+    return await this.cookingRequestRepository.find({
+      where: {
+        cookerId,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
   findAll() {
     return 'This action returns all cookingRequests';
   }

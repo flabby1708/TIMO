@@ -32,6 +32,13 @@ export class CookingRequestsController {
     return await this.cookingRequestsService.create(customerId, dto);
   }
 
+  @Get('open')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(UserRole.COOKER)
+  async findOpen() {
+    return await this.cookingRequestsService.findOpen();
+  }
+
   @Get('my')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.CUSTOMER)
@@ -41,11 +48,13 @@ export class CookingRequestsController {
     return await this.cookingRequestsService.findMyRequests(customerId);
   }
 
-  @Get('open')
+  @Get('my-jobs')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.COOKER)
-  async findOpen() {
-    return await this.cookingRequestsService.findOpen();
+  async findMyJobs(@Req() request: any) {
+    const cookerId = request.user.sub;
+
+    return await this.cookingRequestsService.findMyJobs(cookerId);
   }
 
   @Get(':id')
