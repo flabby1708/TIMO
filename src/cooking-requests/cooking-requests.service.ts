@@ -14,6 +14,7 @@ import {
   CookingRequest,
   CookingRequestStatus,
 } from './entities/cooking-request.entity.js';
+import { UserRole } from '../users/entities/user.entity.js';
 
 @Injectable()
 export class CookingRequestsService {
@@ -119,8 +120,43 @@ export class CookingRequestsService {
     return await this.cookingRequestRepository.save(cookingRequest);
   }
 
+  async findMyRequests(customerId: string): Promise<CookingRequest[]> {
+    return await this.cookingRequestRepository.find({
+      where: {
+        customerId,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
   findAll() {
     return 'This action returns all cookingRequests';
+  }
+
+  async findOne(
+    id: string,
+    userId: string,
+    role: UserRole,
+  ): Promise<CookingRequest> {
+    const cookingRequest = await this.cookingRequestRepository.findOne({
+      where: { id },
+    });
+
+    if (!cookingRequest) {
+      throw new NotFoundException('Cooking request not found');
+    }
+
+    if (role === UserRole.CUSTOMER && cookingRequest.customerId !== userId) {
+      throw new ForbiddenException('You cannot view this cooking request');
+    }
+
+    if (role === UserRole.COOKER && cookingRequest.cookerId !== userId) {
+      throw new ForbiddenException('You cannot view this cooking request');
+    }
+
+    return cookingRequest;
   }
 
   update(id: string, updateCookingRequestDto: UpdateCookingRequestDto) {

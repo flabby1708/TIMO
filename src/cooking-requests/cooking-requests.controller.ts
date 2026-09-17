@@ -26,16 +26,19 @@ export class CookingRequestsController {
   @Post()
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.CUSTOMER)
-  async create(
-    @Req() request: any,
-    @Body() dto: CreateCookingRequestDto,
-  ) {
+  async create(@Req() request: any, @Body() dto: CreateCookingRequestDto) {
     const customerId = request.user.sub;
 
-    return await this.cookingRequestsService.create(
-      customerId,
-      dto,
-    );
+    return await this.cookingRequestsService.create(customerId, dto);
+  }
+
+  @Get('my')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(UserRole.CUSTOMER)
+  async findMyRequests(@Req() request: any) {
+    const customerId = request.user.sub;
+
+    return await this.cookingRequestsService.findMyRequests(customerId);
   }
 
   @Get('open')
@@ -45,48 +48,40 @@ export class CookingRequestsController {
     return await this.cookingRequestsService.findOpen();
   }
 
+  @Get(':id')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles(UserRole.CUSTOMER, UserRole.COOKER)
+  async findOne(@Param('id') id: string, @Req() request: any) {
+    const userId = request.user.sub;
+    const role = request.user.role;
+
+    return await this.cookingRequestsService.findOne(id, userId, role);
+  }
+
   @Patch(':id/cancel')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.CUSTOMER)
-  async cancel(
-    @Param('id') id: string,
-    @Req() request: any,
-  ) {
+  async cancel(@Param('id') id: string, @Req() request: any) {
     const customerId = request.user.sub;
 
-    return await this.cookingRequestsService.cancel(
-      id,
-      customerId,
-    );
+    return await this.cookingRequestsService.cancel(id, customerId);
   }
 
   @Patch(':id/accept')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.COOKER)
-  async accept(
-    @Param('id') id: string,
-    @Req() request: any,
-  ) {
+  async accept(@Param('id') id: string, @Req() request: any) {
     const cookerId = request.user.sub;
 
-    return await this.cookingRequestsService.accept(
-      id,
-      cookerId,
-    );
+    return await this.cookingRequestsService.accept(id, cookerId);
   }
 
   @Patch(':id/complete')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.COOKER)
-  async complete(
-    @Param('id') id: string,
-    @Req() request: any,
-  ) {
+  async complete(@Param('id') id: string, @Req() request: any) {
     const cookerId = request.user.sub;
 
-    return await this.cookingRequestsService.complete(
-      id,
-      cookerId,
-    );
+    return await this.cookingRequestsService.complete(id, cookerId);
   }
 }
