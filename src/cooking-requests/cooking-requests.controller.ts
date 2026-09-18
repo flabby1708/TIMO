@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Req,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -16,6 +17,8 @@ import { AuthGuard } from '../auth/guards/auth.guard.js';
 import { RoleGuard } from '../common/guards/role.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { UserRole } from '../users/entities/user.entity.js';
+import { CookingRequestStatus } from './entities/cooking-request.entity.js';
+import { FilterCookingRequestsDto } from './dto/filter-cooking-requests.dto.js';
 
 @Controller('cooking-requests')
 export class CookingRequestsController {
@@ -42,19 +45,28 @@ export class CookingRequestsController {
   @Get('my')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.CUSTOMER)
-  async findMyRequests(@Req() request: any) {
+  async findMyRequests(
+    @Req() request: any,
+    @Query() query: FilterCookingRequestsDto,
+  ) {
     const customerId = request.user.sub;
 
-    return await this.cookingRequestsService.findMyRequests(customerId);
+    return await this.cookingRequestsService.findMyRequests(
+      customerId,
+      query.status,
+    );
   }
 
   @Get('my-jobs')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.COOKER)
-  async findMyJobs(@Req() request: any) {
+  async findMyJobs(
+    @Req() request: any,
+    @Query() query: FilterCookingRequestsDto,
+  ) {
     const cookerId = request.user.sub;
 
-    return await this.cookingRequestsService.findMyJobs(cookerId);
+    return await this.cookingRequestsService.findMyJobs(cookerId, query.status);
   }
 
   @Get(':id')

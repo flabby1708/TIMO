@@ -120,10 +120,14 @@ export class CookingRequestsService {
     return await this.cookingRequestRepository.save(cookingRequest);
   }
 
-  async findMyRequests(customerId: string): Promise<CookingRequest[]> {
+  async findMyRequests(
+    customerId: string,
+    status?: CookingRequestStatus,
+  ): Promise<CookingRequest[]> {
     return await this.cookingRequestRepository.find({
       where: {
         customerId,
+        ...(status && { status }),
       },
       order: {
         createdAt: 'DESC',
@@ -131,10 +135,14 @@ export class CookingRequestsService {
     });
   }
 
-  async findMyJobs(cookerId: string): Promise<CookingRequest[]> {
+  async findMyJobs(
+    cookerId: string,
+    status?: CookingRequestStatus,
+  ): Promise<CookingRequest[]> {
     return await this.cookingRequestRepository.find({
       where: {
         cookerId,
+        ...(status && { status }),
       },
       order: {
         createdAt: 'DESC',
